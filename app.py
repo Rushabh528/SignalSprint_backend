@@ -1,5 +1,6 @@
 import os
 import tempfile
+import traceback
 from contextlib import asynccontextmanager
 from typing import List
 
@@ -95,6 +96,7 @@ async def predict_image(file: UploadFile = File(...)):
             "model_filename": MODEL_PATH,
         }
     except Exception as exc:
+        traceback.print_exc()
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     finally:
         try:

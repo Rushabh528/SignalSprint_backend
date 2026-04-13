@@ -85,9 +85,9 @@ def _tta_transforms(pil_img):
     Returns a list of PIL images to run through the ViT independently.
     The predictions are averaged for a smoother, more robust score.
     """
-    views = [pil_img]                                            # 1. Original
-    views.append(pil_img.transpose(Image.FLIP_LEFT_RIGHT))       # 2. H-flip
-    views.append(pil_img.transpose(Image.FLIP_TOP_BOTTOM))       # 3. V-flip
+    views = [pil_img]                                                        # 1. Original
+    views.append(pil_img.transpose(Image.Transpose.FLIP_LEFT_RIGHT))         # 2. H-flip
+    views.append(pil_img.transpose(Image.Transpose.FLIP_TOP_BOTTOM))         # 3. V-flip
 
     # 4-5. Slight crops (centre 85% and 90%) — simulates scale jitter
     w, h = pil_img.size
@@ -143,6 +143,9 @@ def predict(models, image_path):
     if original_img is None:
         return 0
 
+    if result.boxes is None or len(result.boxes) == 0:
+        return 0
+
     img_h, img_w = original_img.shape[:2]
     vit_inputs = []
 
@@ -180,7 +183,7 @@ def predict(models, image_path):
     for crop in vit_inputs:
         # BGR → RGB → PIL
         img_rgb = cv2.cvtColor(crop, cv2.COLOR_BGR2RGB)
-        pil_img = Image.fromarray(img_rgb)
+        pil_img = Image.fromarray(img_rgb).convert("RGB")
 
         prob = _get_action_probability(
             vit_model, pil_img, transform, device, use_tta=TTA_ENABLED
