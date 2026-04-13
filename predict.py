@@ -30,6 +30,7 @@ from ultralytics import YOLO
 YOLO_CONF         = 0.25   # Raised from 0.1 to filter noisy detections
 ACTION_THRESHOLD   = 0.3   # Softmax P(action) must exceed this to flag
 TTA_ENABLED        = True   # Test-Time Augmentation for robustness
+INFERENCE_DEVICE   = "cpu"  # Force CPU inference in deployment environments
 
 CLASS_NAMES = {
     0: "bin_caged",
@@ -54,7 +55,7 @@ def load_model():
     yolo_model = YOLO(yolo_temp_path)
 
     # Stage 2: Swin Transformer (air-gap safe via bundled config)
-    device = torch.device("cpu")
+    device = torch.device(INFERENCE_DEVICE)
     vit_config = SwinConfig.from_dict(data['vit_config'])
     vit_model = SwinForImageClassification(vit_config)
 
@@ -134,7 +135,12 @@ def predict(models, image_path):
     transform  = models["transform"]
 
     # ── STAGE 1: DMC-Gate Selective Detection ──────────────────
-    results = yolo_model.predict(source=image_path, conf=YOLO_CONF, verbose=False)
+    results = yolo_model.predict(
+        source=image_path,
+        conf=YOLO_CONF,
+        verbose=False,
+        device=INFERENCE_DEVICE,
+    )
     result  = results[0]
 
     original_img = result.orig_img
