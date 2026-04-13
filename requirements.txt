@@ -9,3 +9,4 @@ fastapi
 uvicorn
 gdown
 scikit-learn
+python-multipart
