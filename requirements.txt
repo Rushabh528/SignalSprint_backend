@@ -1,0 +1,11 @@
+torch
+torchvision
+transformers
+ultralytics
+numpy
+Pillow
+opencv-python-headless
+fastapi
+uvicorn
+gdown
+scikit-learn
